@@ -104,27 +104,41 @@ class QtSinglePlotWindow(QtWidgets.QWidget):
 
 class QtDoubleWindow(QtWidgets.QWidget):
     def __init__(self):
+        """
+        A Qt window that plots data from two .csv files (prefereably unfiltered and filtered data).
+        """
         super().__init__()
 
+        # Set fixed button width and height
         self.button_width = 150
         self.button_height = 40
 
-        self.initUI()
-
+        # Initialize the plot index dictionary (used for naming subplots)
         self.plot_index_dict = {0: "Unfiltered", 1: "Filtered"}
 
+        # Initialize the UI
+        self.initUI()
+
     def initUI(self):
+        """
+        Initializes the UI of the Qt window.
+        """
         self.figure, self.ax = plt.subplots(1, 2, figsize=(10, 5))
         self.canvas = FigureCanvas(self.figure)
 
+        # Create two buttons to select .csv files
+
+        # First csv file
         self.button1 = QtWidgets.QPushButton("Select CSV File 1")
         self.button1.clicked.connect(lambda: self.loadCsvFile(0))
         self.button1.setFixedSize(self.button_width, self.button_height)
 
+        # Second csv file
         self.button2 = QtWidgets.QPushButton("Select CSV File 2")
         self.button2.clicked.connect(lambda: self.loadCsvFile(1))
         self.button2.setFixedSize(self.button_width, self.button_height)
 
+        # Create a title label (custom font)
         title_label = QtWidgets.QLabel("Pozyx Unfiltered / Filtered Data")
         font = QFont()
         font.setPointSize(16)
@@ -132,32 +146,45 @@ class QtDoubleWindow(QtWidgets.QWidget):
         title_label.setFont(font)
         title_label.setAlignment(Qt.AlignCenter)
 
+        # Create a button layout (side-by-side)
         button_layout = QtWidgets.QHBoxLayout()
         button_layout.addWidget(self.button1)
         button_layout.addWidget(self.button2)
 
+        # Layout our window widgets: title, buttons, and plot
         layout = QtWidgets.QVBoxLayout()
         layout.addWidget(title_label)
         layout.addLayout(button_layout)
         layout.addWidget(self.canvas)
 
+        # Stretch factors for the layout during resizing
         layout.setStretch(0, 1) # Title stretch factor
         layout.setStretch(1, 1) # Button layout stretch factor
         layout.setStretch(2, 8) # Plot stretch factor
 
+        # Set the layout and title of the window
         self.setLayout(layout)
         self.setWindowTitle("Pozyx Unfiltered/Filtered 1-D Data")
 
     def loadCsvFile(self, plot_index):
+        """
+        Opens a file dialog to select a .csv file.
+        """
         options = QFileDialog.Options()
         filename, _ = QFileDialog.getOpenFileName(
             self, "Select CSV File", "", "CSV Files (*.csv)", options=options
         )
 
+        # Plot the .csv file
         if filename:
             self.plotData(filename, plot_index)
 
     def plotData(self, filename, plot_index):
+        """
+        Plots the data from a .csv file.
+        """
+
+        # Read the .csv file and plot the data
         df = pd.read_csv(filename)
         self.ax[plot_index].clear()
         self.ax[plot_index].plot(df[df.columns[0]], df[df.columns[1]])
