@@ -53,9 +53,8 @@ class Pozyx1dCapture(object):
         self.errorfile = (
             self.error_dir + "error_" + self.run_timestamp + self.protocol_name + ".csv"
         )
-        self.num_data_samples = 0 # Used to track the number of data samples taken
-        self.num_err_samples = 0 # Used to track the number of error samples taken
-
+        self.num_data_samples = 0  # Used to track the number of data samples taken
+        self.num_err_samples = 0  # Used to track the number of error samples taken
 
     def setup(self):
         """

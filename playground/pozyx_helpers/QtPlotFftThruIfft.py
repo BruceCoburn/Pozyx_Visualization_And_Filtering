@@ -1,18 +1,10 @@
 # Import Python-native modules
 import os
-import csv
 import numpy as np
-import pandas as pd
-import matplotlib.pyplot as plt
-from scipy.fftpack import fft, fftfreq
-from PyQt5 import QtWidgets
-from matplotlib.figure import Figure
-from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
-from PyQt5.QtWidgets import QFileDialog
+from scipy.fftpack import fft
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QFont
 from PyQt5.QtWidgets import (
-    QApplication,
     QMainWindow,
     QFileDialog,
     QVBoxLayout,
@@ -20,197 +12,16 @@ from PyQt5.QtWidgets import (
     QWidget,
     QLabel,
     QHBoxLayout,
-    QGridLayout,
-    QSizePolicy,
     QTabWidget,
 )
+from matplotlib.figure import Figure
+from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
+
+# Import custom modules
+# from .supplemental_functions import create_two_figs_in_tab
 
 
-def plot_csv_data(csv_file):
-    """
-    Plots the data from a .csv file using a Matplotlib popup window.
-    """
-
-    x_data = []
-    y_data = []
-
-    # Read data from csv file
-    with open(csv_file, "r") as file:
-        reader = csv.reader(file)
-        headers = next(reader)  # Skip the header row
-
-        for row in reader:
-            try:
-                x_value = float(row[0])  # First column (x-axis)
-                y_value = float(row[1])  # Second column (y-axis)
-                x_data.append(x_value)
-                y_data.append(y_value)
-            except ValueError:
-                print(f"Invalid row data: {row}")
-
-    # Plot data
-    plt.plot(x_data, y_data, marker="o")
-    plt.xlabel(headers[0])  # x-axis label from the header
-    plt.ylabel(headers[1])  # y-axis label from the header
-    plt.title(f"1-D Pozyx Data")
-    plt.show()
-
-
-class QtSinglePlotWindow(QtWidgets.QWidget):
-    """
-    A Qt window that plots data from a .csv file (input filename within the script).
-    """
-
-    def __init__(self):
-        super().__init__()
-
-        self.initUI()  # Initialize the UI
-
-    def initUI(self):
-        """
-        Initializes the UI of the Qt window.
-        """
-
-        # Set window title
-        self.setWindowTitle("Pozyx 1-D Plotter")
-
-        # Create a figure and canvas
-        self.figure, self.ax = plt.subplots()
-        self.canvas = FigureCanvas(self.figure)
-
-        # Create a button to select a .csv file
-        self.button = QtWidgets.QPushButton("Select CSV File")
-        self.button.clicked.connect(
-            self.loadCsvFile
-        )  # Connect the button to a function
-
-        # Create a vertical box layout
-        layout = QtWidgets.QVBoxLayout()
-        layout.addWidget(self.button)
-        layout.addWidget(self.canvas)
-
-        # Set the layout of the window
-        self.setLayout(layout)
-
-    def loadCsvFile(self):
-        """
-        Opens a file dialog to select a .csv file.
-        """
-        options = QFileDialog.Options()
-
-        # Open a file dialog to select a .csv file, filters for .csv files
-        filename, _ = QFileDialog.getOpenFileName(
-            self, "Select CSV File", "", "CSV Files (*.csv)", options=options
-        )
-
-        # Plot the .csv file
-        if filename:
-            self.plotCsvFile(filename)
-
-    def plotCsvFile(self, filename):
-        """
-        Plots the data from a .csv file.
-        """
-        df = pd.read_csv(filename)
-        self.ax.clear()
-        self.ax.plot(df[df.columns[0]], df[df.columns[1]])
-        self.ax.set_title("1-D Pozyx Data")
-        self.canvas.draw()
-
-
-class QtChooseDoubleWindow(QtWidgets.QWidget):
-    def __init__(self):
-        """
-        A Qt window that plots data from two .csv files (prefereably unfiltered and filtered data).
-        """
-        super().__init__()
-
-        # Set fixed button width and height
-        self.button_width = 150
-        self.button_height = 40
-
-        # Initialize the plot index dictionary (used for naming subplots)
-        self.plot_index_dict = {0: "Unfiltered", 1: "Filtered"}
-
-        # Initialize the UI
-        self.initUI()
-
-    def initUI(self):
-        """
-        Initializes the UI of the Qt window.
-        """
-        self.figure, self.ax = plt.subplots(1, 2, figsize=(10, 5))
-        self.canvas = FigureCanvas(self.figure)
-
-        # Create two buttons to select .csv files
-
-        # First csv file
-        self.button1 = QtWidgets.QPushButton("Select CSV File 1")
-        self.button1.clicked.connect(lambda: self.loadCsvFile(0))
-        self.button1.setFixedSize(self.button_width, self.button_height)
-
-        # Second csv file
-        self.button2 = QtWidgets.QPushButton("Select CSV File 2")
-        self.button2.clicked.connect(lambda: self.loadCsvFile(1))
-        self.button2.setFixedSize(self.button_width, self.button_height)
-
-        # Create a title label (custom font)
-        title_label = QtWidgets.QLabel("Pozyx Unfiltered / Filtered Data")
-        font = QFont()
-        font.setPointSize(16)
-        font.setBold(True)
-        title_label.setFont(font)
-        title_label.setAlignment(Qt.AlignCenter)
-
-        # Create a button layout (side-by-side)
-        button_layout = QtWidgets.QHBoxLayout()
-        button_layout.addWidget(self.button1)
-        button_layout.addWidget(self.button2)
-
-        # Layout our window widgets: title, buttons, and plot
-        layout = QtWidgets.QVBoxLayout()
-        layout.addWidget(title_label)
-        layout.addLayout(button_layout)
-        layout.addWidget(self.canvas)
-
-        # Stretch factors for the layout during resizing
-        layout.setStretch(0, 1)  # Title stretch factor
-        layout.setStretch(1, 1)  # Button layout stretch factor
-        layout.setStretch(2, 8)  # Plot stretch factor
-
-        # Set the layout and title of the window
-        self.setLayout(layout)
-        self.setWindowTitle("Pozyx Unfiltered/Filtered 1-D Data")
-
-    def loadCsvFile(self, plot_index):
-        """
-        Opens a file dialog to select a .csv file.
-        """
-        options = QFileDialog.Options()
-        filename, _ = QFileDialog.getOpenFileName(
-            self, "Select CSV File", "", "CSV Files (*.csv)", options=options
-        )
-
-        # Plot the .csv file
-        if filename:
-            self.plotData(filename, plot_index)
-
-    def plotData(self, filename, plot_index):
-        """
-        Plots the data from a .csv file.
-        """
-
-        # Read the .csv file and plot the data
-        df = pd.read_csv(filename)
-        self.ax[plot_index].clear()
-        self.ax[plot_index].plot(df[df.columns[0]], df[df.columns[1]])
-        self.ax[plot_index].set_title(
-            f"1-D Pozyx {self.plot_index_dict[plot_index]} Data"
-        )
-        self.canvas.draw()
-
-
-class QtPlotFftMagnitudePhase(QMainWindow):
+class QtPlotFftThruIfft(QMainWindow):
     def __init__(self):
         super().__init__()
 
@@ -264,15 +75,22 @@ class QtPlotFftMagnitudePhase(QMainWindow):
         # Create tab widget
         self.tabs = QTabWidget()
         mainLayout.addWidget(self.tabs)
+        
+        # Create tab0 - raw data and PSD
+        tab0 = QWidget()
+        tab0Layout = QHBoxLayout()
+        self.createPlots(tab0Layout, 0)
+        tab0.setLayout(tab0Layout)
+        self.tabs.addTab(tab0, "Raw Data and PSD")
 
-        # Create tab1 - raw data, magnitude, phase w/ DC component
+        # Create tab1 - magnitude, phase w/ DC component
         tab1 = QWidget()
         tab1Layout = QHBoxLayout()
         self.createPlots(tab1Layout, 1)
         tab1.setLayout(tab1Layout)
         self.tabs.addTab(tab1, "With DC Offset")
 
-        # Create tab2 - raw data, magnitude, phase w/o DC component
+        # Create tab2 - magnitude, phase w/o DC component
         tab2 = QWidget()
         tab2Layout = QHBoxLayout()
         self.createPlots(tab2Layout, 2)
@@ -316,18 +134,12 @@ class QtPlotFftMagnitudePhase(QMainWindow):
         ########################################
         # Plot the raw data
         ########################################
-        ax = self.canvas_raw_data_tab1.figure.subplots()
+        ax = self.canvas_raw_data_tab0.figure.subplots()
         ax.set_title("Raw Pozyx Data")
         ax.set_xlabel("Time (ms)")
         ax.set_ylabel("Distance (mm)")
         ax.plot(timesteps, data[:, 1])
-        self.canvas_raw_data_tab1.draw()
-        ax = self.canvas_raw_data_tab2.figure.subplots()
-        ax.set_title("Raw Pozyx Data")
-        ax.set_xlabel("Time (ms)")
-        ax.set_ylabel("Distance (mm)")
-        ax.plot(timesteps, data[:, 1])
-        self.canvas_raw_data_tab2.draw()
+        self.canvas_raw_data_tab0.draw()
 
         ########################################
         # Plot the Magnitude w/ DC Offset
@@ -404,6 +216,23 @@ class QtPlotFftMagnitudePhase(QMainWindow):
         ax.set_ylabel("Phase (radians)")
         self.canvas_phase_tab2.draw()
 
+        ########################################
+        # Compute the Power Spectral Density (PSD)
+        ########################################
+        # The PSD is the square of the magnitude spectrum
+        psd_wo_dc = np.square(magnitudes_wo_dc)
+
+        # Plot the PSD
+        ax = self.canvas_PSD_tab0.figure.subplots()
+        ax.plot(
+            frequencies[:positive_freq_components],
+            psd_wo_dc[:positive_freq_components],
+        )
+        ax.set_title("Power Spectral Density (w/o DC Offset)")
+        ax.set_xlabel("Frequency (Hz)")
+        ax.set_ylabel("PSD")
+        self.canvas_PSD_tab0.draw()
+
         ################################################################
         # Find the maximum magnitude and the corresponding frequency
         ################################################################
@@ -416,14 +245,6 @@ class QtPlotFftMagnitudePhase(QMainWindow):
 
         print(f"max_magnitude_index_w_dc: {max_magnitude_index_w_dc}")
         print(f"max_magnitude_index_wo_dc: {max_magnitude_index_wo_dc}")
-
-        """
-        # This code block is leading to the code freezing up for some reason...
-        # Check that the maximum magnitude indices match
-        print(f'checking that the maximum magnitude indices match...')
-        if max_magnitude_index_w_dc != max_magnitude_index_wo_dc:
-            raise ValueError("The maximum magnitude indices do not match between data with and without DC offset!")
-        """
 
         # Get the corresponding frequency
         max_magnitude_freq = frequencies[max_magnitude_index_wo_dc]
@@ -447,27 +268,27 @@ class QtPlotFftMagnitudePhase(QMainWindow):
         L = np.arange(
             1, np.floor(n / 2), dtype="int"
         )  # Only plot the first half of freqs
-        return PSD, freq, L
+        return PSD
 
     def createPlots(self, layout, tabNumber):
-        figure_raw_data = Figure()
-        canvas_raw_data = FigureCanvas(figure_raw_data)
-        layout.addWidget(canvas_raw_data)
 
-        figure_magnitude = Figure()
-        canvas_magnitude = FigureCanvas(figure_magnitude)
-        layout.addWidget(canvas_magnitude)
+        figure_plot0 = Figure()
+        canvas_plot0 = FigureCanvas(figure_plot0)
+        layout.addWidget(canvas_plot0)
 
-        figure_phase = Figure()
-        canvas_phase = FigureCanvas(figure_phase)
-        layout.addWidget(canvas_phase)
+        figure_plot1= Figure()
+        canvas_plot1 = FigureCanvas(figure_plot1)
+        layout.addWidget(canvas_plot1)
 
         # Store the canvases and figures
-        if tabNumber == 1:
-            self.canvas_raw_data_tab1 = canvas_raw_data
-            self.canvas_magnitude_tab1 = canvas_magnitude
-            self.canvas_phase_tab1 = canvas_phase
+        if tabNumber == 0:
+            self.canvas_raw_data_tab0 = canvas_plot0
+            self.canvas_PSD_tab0 = canvas_plot1
+        elif tabNumber == 1:
+            self.canvas_magnitude_tab1 = canvas_plot0
+            self.canvas_phase_tab1 = canvas_plot1
         elif tabNumber == 2:
-            self.canvas_raw_data_tab2 = canvas_raw_data
-            self.canvas_magnitude_tab2 = canvas_magnitude
-            self.canvas_phase_tab2 = canvas_phase
+            self.canvas_magnitude_tab2 = canvas_plot0
+            self.canvas_phase_tab2 = canvas_plot1
+        else:
+            raise ValueError("Invalid tab number")

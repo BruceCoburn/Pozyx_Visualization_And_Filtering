@@ -92,6 +92,12 @@ if __name__ == "__main__":
     total_samples_per_second = total_samples / duration_s
 
     # Print the number of samples per second
-    print(f"Data samples per second: {data_samples_per_second} || {1/data_samples_per_second} seconds per data sample")
-    print(f"Error samples per second: {err_samples_per_second} || {1/err_samples_per_second} seconds per error sample")
-    print(f"Total samples per second: {total_samples_per_second} || {1/total_samples_per_second} seconds per sample")
+    print(
+        f"Data samples per second: {data_samples_per_second} || {1/data_samples_per_second} seconds per data sample"
+    )
+    print(
+        f"Error samples per second: {err_samples_per_second} || {1/err_samples_per_second} seconds per error sample"
+    )
+    print(
+        f"Total samples per second: {total_samples_per_second} || {1/total_samples_per_second} seconds per sample"
+    )
