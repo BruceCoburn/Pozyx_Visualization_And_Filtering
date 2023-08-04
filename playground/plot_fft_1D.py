@@ -5,6 +5,6 @@ from PyQt5.QtWidgets import QApplication
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-    app.setStyleSheet(set_dark_mode)
+    # app.setStyleSheet(set_dark_mode) # Can't see tab names
     ex = QtPlotFftMagnitudePhase()
     sys.exit(app.exec_())

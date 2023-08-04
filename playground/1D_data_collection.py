@@ -77,6 +77,21 @@ if __name__ == "__main__":
         pozyx1d.loop()
 
     print("")
-    nice_print(f"Ran for {duration_s} seconds.")
+    nice_print(f"Ran for {duration_s} seconds using {pozyx1d.protocol_name} protocol.")
     print(f"---> Run file: {pozyx1d.datafile}")
     print(f"---> Error file: {pozyx1d.errorfile}")
+
+    # Compute the number of samples per second
+    data_samples = pozyx1d.num_data_samples
+    data_samples_per_second = data_samples / duration_s
+
+    err_samples = pozyx1d.num_err_samples
+    err_samples_per_second = err_samples / duration_s
+
+    total_samples = data_samples + err_samples
+    total_samples_per_second = total_samples / duration_s
+
+    # Print the number of samples per second
+    print(f"Data samples per second: {data_samples_per_second} || {1/data_samples_per_second} seconds per data sample")
+    print(f"Error samples per second: {err_samples_per_second} || {1/err_samples_per_second} seconds per error sample")
+    print(f"Total samples per second: {total_samples_per_second} || {1/total_samples_per_second} seconds per sample")

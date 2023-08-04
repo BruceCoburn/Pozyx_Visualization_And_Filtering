@@ -4,7 +4,7 @@ plt.rcParams['figure.figsize'] = [16, 12]
 plt.rcParams.update({'font.size': 18})
 
 # Create a simple signal with two frequencies
-dt = 0.001 # timestep (0.001 samples / s)
+dt = 0.001 # timestep (0.001 s / sample)
 t = np.arange(0,1,dt)
 f = np.sin(2*np.pi*50*t) + np.sin(2*np.pi*120*t) # Sum of 2 frequencies
 f_clean = f

@@ -261,50 +261,35 @@ class QtPlotFftMagnitudePhase(QMainWindow):
 
         mainLayout.addLayout(loadCsvLayout)
 
-        ########################################
-        # Side by side matplotlib figures
-        ########################################
-        plotLayout = QHBoxLayout()
+        # Create tab widget
+        self.tabs = QTabWidget()
+        mainLayout.addWidget(self.tabs)
 
-        # Raw Data Plot
-        self.figure_raw = Figure()
-        self.canvas_raw = FigureCanvas(self.figure_raw)
-        plotLayout.addWidget(self.canvas_raw)
-        
-        # Un-Normalized Magnitude Plot
-        self.figure_magnitude_w_dc = Figure()
-        self.canvas_magnitude_w_dc = FigureCanvas(self.figure_magnitude_w_dc)
-        plotLayout.addWidget(self.canvas_magnitude_w_dc)
+        # Create tab1 - raw data, magnitude, phase w/ DC component
+        tab1 = QWidget()
+        tab1Layout = QHBoxLayout()
+        self.createPlots(tab1Layout, 1)
+        tab1.setLayout(tab1Layout)
+        self.tabs.addTab(tab1, "With DC Offset")
 
-        # Un-Normalized Phase Plot
-        self.figure_phase_w_dc = Figure()
-        self.canvas_phase_w_dc = FigureCanvas(self.figure_phase_w_dc)
-        plotLayout.addWidget(self.canvas_phase_w_dc)
+        # Create tab2 - raw data, magnitude, phase w/o DC component
+        tab2 = QWidget()
+        tab2Layout = QHBoxLayout()
+        self.createPlots(tab2Layout, 2)
+        tab2.setLayout(tab2Layout)
+        self.tabs.addTab(tab2, "Without DC Offset")
 
-        # Normalized Magnitude Plot
-        self.figure_magnitude_wo_dc = Figure()
-        self.canvas_magnitude_wo_dc = FigureCanvas(self.figure_magnitude_wo_dc)
-        plotLayout.addWidget(self.canvas_magnitude_wo_dc)
-
-        # Normalized Phase Plot
-        self.figure_phase_wo_dc = Figure()
-        self.canvas_phase_wo_dc = FigureCanvas(self.figure_phase_wo_dc)
-        plotLayout.addWidget(self.canvas_phase_wo_dc)
-
-        mainLayout.addLayout(plotLayout)
+        # Add tabs to tab widget
+        mainWidget = QWidget()
+        mainWidget.setLayout(mainLayout)
+        self.setCentralWidget(mainWidget)
 
         # Set stretch factors
         mainLayout.setStretch(0, 1)  # Stretch factor for title
         mainLayout.setStretch(1, 1)  # Stretch factor for button
         mainLayout.setStretch(2, 8)  # Stretch factor for plots
 
-        # Setting layout
-        central_widget = QWidget()
-        central_widget.setLayout(mainLayout)
-        self.setCentralWidget(central_widget)
-
         self.show()
-        # self.showMaximized()
 
     def loadCSV(self):
         options = QFileDialog.Options()
@@ -332,11 +317,18 @@ class QtPlotFftMagnitudePhase(QMainWindow):
         ########################################
         # Plot the raw data
         ########################################
-        ax_raw_data = self.figure_raw.add_subplot(1, 1, 1)
-        ax_raw_data.plot(timesteps, data[:, 1])
-        ax_raw_data.set_title("Raw Data")
-        ax_raw_data.set_xlabel("Timestep (ms)")
-        ax_raw_data.set_ylabel("Distance (mm)")
+        ax = self.canvas_raw_data_tab1.figure.subplots()
+        ax.set_title("Raw Pozyx Data")
+        ax.set_xlabel("Time (ms)")
+        ax.set_ylabel("Distance (mm)")
+        ax.plot(timesteps, data[:, 1])
+        self.canvas_raw_data_tab1.draw()
+        ax = self.canvas_raw_data_tab2.figure.subplots()
+        ax.set_title("Raw Pozyx Data")
+        ax.set_xlabel("Time (ms)")
+        ax.set_ylabel("Distance (mm)")
+        ax.plot(timesteps, data[:, 1])
+        self.canvas_raw_data_tab2.draw()
 
         ########################################
         # Plot the Magnitude w/ DC Offset
@@ -352,26 +344,26 @@ class QtPlotFftMagnitudePhase(QMainWindow):
         phase_w_dc = np.angle(transformed_w_dc)
 
         # Plot the normalized magnitude
-        self.figure_magnitude_w_dc.clear()
-        ax_magnitude_w_dc = self.figure_magnitude_w_dc.add_subplot(1, 1, 1)
-        ax_magnitude_w_dc.plot(
+        ax = self.canvas_magnitude_tab1.figure.subplots()
+        ax.plot(
             frequencies[:positive_freq_components], magnitudes_w_dc[:positive_freq_components]
         )
-        ax_magnitude_w_dc.set_title("Magnitude w/ DC Offset")
-        ax_magnitude_w_dc.set_xlabel("Frequency (Hz)")
-        ax_magnitude_w_dc.set_ylabel("Magnitude")
+        ax.set_title("Magnitude w/ DC Offset")
+        ax.set_xlabel("Frequency (Hz)")
+        ax.set_ylabel("Magnitude")
+        self.canvas_magnitude_tab1.draw()
 
         ########################################
         # Plot the Phase w/ DC Offset
         ########################################
-        self.figure_phase_w_dc.clear()
-        ax_phase_w_dc = self.figure_phase_w_dc.add_subplot(1, 1, 1)
-        ax_phase_w_dc.plot(
+        ax = self.canvas_phase_tab1.figure.subplots()
+        ax.plot(
             frequencies[:positive_freq_components], phase_w_dc[:positive_freq_components]
         )
-        ax_phase_w_dc.set_title("Phase w/ DC Offset")
-        ax_phase_w_dc.set_xlabel("Frequency (Hz)")
-        ax_phase_w_dc.set_ylabel("Phase (radians)")
+        ax.set_title("Phase w/ DC Offset")
+        ax.set_xlabel("Frequency (Hz)")
+        ax.set_ylabel("Phase (radians)")
+        self.canvas_phase_tab1.draw()
 
         ########################################
         # Plot the Magnitude w/o DC Offset
@@ -388,27 +380,27 @@ class QtPlotFftMagnitudePhase(QMainWindow):
         phase_wo_dc = np.angle(transformed_wo_dc)
 
         # Plot the normalized magnitude
-        self.figure_magnitude_wo_dc.clear()
-        ax_magnitude_wo_dc = self.figure_magnitude_wo_dc.add_subplot(1, 1, 1)
-        ax_magnitude_wo_dc.plot(
+        ax = self.canvas_magnitude_tab2.figure.subplots()
+        ax.plot(
             frequencies[:positive_freq_components],
             magnitudes_wo_dc[:positive_freq_components],
         )
-        ax_magnitude_wo_dc.set_title("Magnitude Spectrum w/o DC Offset")
-        ax_magnitude_wo_dc.set_xlabel("Frequency (Hz)")
-        ax_magnitude_wo_dc.set_ylabel("Magnitude")
+        ax.set_title("Magnitude Spectrum w/o DC Offset")
+        ax.set_xlabel("Frequency (Hz)")
+        ax.set_ylabel("Magnitude")
+        self.canvas_magnitude_tab2.draw()
 
         ########################################
         # Plot the Phase w/o DC Offset
         ########################################
-        self.figure_phase_wo_dc.clear()
-        ax_phase_wo_dc = self.figure_phase_wo_dc.add_subplot(1, 1, 1)
-        ax_phase_wo_dc.plot(
+        ax = self.canvas_phase_tab2.figure.subplots()
+        ax.plot(
             frequencies[:positive_freq_components], phase_wo_dc[:positive_freq_components]
         )
-        ax_phase_wo_dc.set_title("Phase Spectrum w/o DC Offset")
-        ax_phase_wo_dc.set_xlabel("Frequency (Hz)")
-        ax_phase_wo_dc.set_ylabel("Phase (Radians)")
+        ax.set_title("Phase Spectrum w/o DC Offset")
+        ax.set_xlabel("Frequency (Hz)")
+        ax.set_ylabel("Phase (radians)")
+        self.canvas_phase_tab2.draw()
 
         ################################################################
         # Find the maximum magnitude and the corresponding frequency
@@ -418,11 +410,14 @@ class QtPlotFftMagnitudePhase(QMainWindow):
         max_magnitude_index_w_dc = np.argmax(magnitudes_w_dc[:positive_freq_components])
         max_magnitude_index_wo_dc = np.argmax(magnitudes_wo_dc[:positive_freq_components])
 
+        print(f'max_magnitude_index_w_dc: {max_magnitude_index_w_dc}')
+        print(f'max_magnitude_index_wo_dc: {max_magnitude_index_wo_dc}')
+
         """
         # This code block is leading to the code freezing up for some reason...
         # Check that the maximum magnitude indices match
         print(f'checking that the maximum magnitude indices match...')
-        if max_magnitude_index_w_dc != max_magnitude_wo_dc:
+        if max_magnitude_index_w_dc != max_magnitude_index_wo_dc:
             raise ValueError("The maximum magnitude indices do not match between data with and without DC offset!")
         """
 
@@ -436,9 +431,40 @@ class QtPlotFftMagnitudePhase(QMainWindow):
             + f"Frequency: {max_magnitude_freq:.2f} Hz"
         )
 
-        # Draw the plots
-        self.canvas_raw.draw()
-        self.canvas_magnitude_w_dc.draw()
-        self.canvas_phase_w_dc.draw()
-        self.canvas_magnitude_wo_dc.draw()
-        self.canvas_phase_wo_dc.draw()
+    def computeFFT(self, timesteps, data):
+        """
+        Compute the FFT using numpy of the data and return the magnitudes, phases, and PSD
+        """
+        n = len(timesteps)  # Number of samples
+        dt = np.diff(timesteps)[0]  # Time step size
+        fhat = np.fft.fft(data, n)  # Compute the FFT
+        PSD = fhat * np.conj(fhat) / n  # Power spectrum (power per freq)
+        freq = (1 / (dt * n)) * np.arange(n)  # Create x-axis of frequencies in Hz
+        L = np.arange(1, np.floor(n / 2), dtype="int")  # Only plot the first half of freqs
+        return PSD, freq, L
+
+    def createPlots(self, layout, tabNumber):
+        figure_raw_data = Figure()
+        canvas_raw_data = FigureCanvas(figure_raw_data)
+        layout.addWidget(canvas_raw_data)
+
+        figure_magnitude = Figure()
+        canvas_magnitude = FigureCanvas(figure_magnitude)
+        layout.addWidget(canvas_magnitude)
+
+        figure_phase = Figure()
+        canvas_phase = FigureCanvas(figure_phase)
+        layout.addWidget(canvas_phase)
+
+        # Store the canvases and figures
+        if tabNumber == 1:
+            self.canvas_raw_data_tab1 = canvas_raw_data
+            self.canvas_magnitude_tab1 = canvas_magnitude
+            self.canvas_phase_tab1 = canvas_phase
+        elif tabNumber == 2:
+            self.canvas_raw_data_tab2 = canvas_raw_data
+            self.canvas_magnitude_tab2 = canvas_magnitude
+            self.canvas_phase_tab2 = canvas_phase
+
+
+

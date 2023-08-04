@@ -53,6 +53,9 @@ class Pozyx1dCapture(object):
         self.errorfile = (
             self.error_dir + "error_" + self.run_timestamp + self.protocol_name + ".csv"
         )
+        self.num_data_samples = 0 # Used to track the number of data samples taken
+        self.num_err_samples = 0 # Used to track the number of error samples taken
+
 
     def setup(self):
         """
@@ -155,6 +158,7 @@ class Pozyx1dCapture(object):
             writer.writerow(
                 {"Timestep (ms)": self.absolute_timestamp, "Distance (mm)": distance}
             )
+            self.num_data_samples += 1
 
     def write_error_msg_to_csv(self, filename, error_msg):
         """
@@ -184,3 +188,4 @@ class Pozyx1dCapture(object):
             writer.writerow(
                 {"Timestep (ms)": self.absolute_timestamp, "Error Message": error_msg}
             )
+            self.num_err_samples += 1
