@@ -251,15 +251,16 @@ class QtPlotFftThruIfft(QMainWindow):
 
         # Update the label
         self.label_max_magnitude.setText(
-            f"Max Magnitude (w/o DC): {max_magnitude_wo_dc:.2f}\n"
-            + f"Max Magnitude (w DC): {max_magnitude_w_dc:.2f}\n"
-            + f"Frequency: {max_magnitude_freq:.2f} Hz"
+            f"Max Magnitude (w/o DC): {max_magnitude_wo_dc:.4f}\n"
+            + f"Max Magnitude (w DC): {max_magnitude_w_dc:.4f}\n"
+            + f"Frequency: {max_magnitude_freq:.4f} Hz"
         )
 
+    """
     def computeFFT(self, timesteps, data):
-        """
-        Compute the FFT using numpy of the data and return the magnitudes, phases, and PSD
-        """
+        
+        # Compute the FFT using numpy of the data and return the magnitudes, phases, and PSD
+        
         n = len(timesteps)  # Number of samples
         dt = np.diff(timesteps)[0]  # Time step size
         fhat = np.fft.fft(data, n)  # Compute the FFT
@@ -269,6 +270,7 @@ class QtPlotFftThruIfft(QMainWindow):
             1, np.floor(n / 2), dtype="int"
         )  # Only plot the first half of freqs
         return PSD
+    """
 
     def createPlots(self, layout, tabNumber):
 

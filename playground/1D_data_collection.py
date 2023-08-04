@@ -101,3 +101,6 @@ if __name__ == "__main__":
     print(
         f"Total samples per second: {total_samples_per_second} || {1/total_samples_per_second} seconds per sample"
     )
+    print(
+        f"Pozyx Pulses: {pozyx1d.num_pozyx_pulses} || Pozyx Pulses per second: {pozyx1d.num_pozyx_pulses / duration_s}"
+    )

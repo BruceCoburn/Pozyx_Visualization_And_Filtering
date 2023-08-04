@@ -55,6 +55,7 @@ class Pozyx1dCapture(object):
         )
         self.num_data_samples = 0  # Used to track the number of data samples taken
         self.num_err_samples = 0  # Used to track the number of error samples taken
+        self.num_pozyx_pulses = 0
 
     def setup(self):
         """
@@ -122,6 +123,8 @@ class Pozyx1dCapture(object):
                 print("")
 
                 self.write_error_msg_to_csv(self.errorfile, error_msg)
+
+        self.num_pozyx_pulses += 1
 
     def get_timestamp_difference_ms(self, timestamp1, timestamp2):
         """
