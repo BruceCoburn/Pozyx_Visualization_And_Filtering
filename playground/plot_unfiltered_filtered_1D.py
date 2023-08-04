@@ -3,10 +3,10 @@ import sys
 from PyQt5 import QtWidgets
 
 # Import custom modules
-from pozyx_helpers.PozyxPlot import QtDoubleWindow
+from pozyx_helpers.PozyxPlot import QtChooseDoubleWindow
 
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
-    window = QtDoubleWindow()
+    window = QtChooseDoubleWindow()
     window.show()
     sys.exit(app.exec_())

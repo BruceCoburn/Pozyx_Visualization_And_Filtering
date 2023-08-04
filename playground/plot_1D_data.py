@@ -9,7 +9,9 @@ from pozyx_helpers.PozyxPlot import QtSinglePlotWindow
 if __name__ == "__main__":
     # Create a Qt application
     app = QtWidgets.QApplication(sys.argv)
-    window = QtSinglePlotWindow()  # QtSinglePlotWindow() will plot the data from a .csv file
+    window = (
+        QtSinglePlotWindow()
+    )  # QtSinglePlotWindow() will plot the data from a .csv file
 
     # Show the Qt application
     window.show()
