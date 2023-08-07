@@ -168,3 +168,7 @@ cython_debug/
 
 # Ignore our ranging data
 ranging_data/
+
+# Ignore saved plots
+saved_plots/
+*.png

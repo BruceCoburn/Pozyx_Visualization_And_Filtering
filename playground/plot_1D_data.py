@@ -3,7 +3,8 @@ import sys
 from PyQt5 import QtWidgets
 
 # Import custom modules
-from pozyx_helpers.PozyxPlot import QtSinglePlotWindow
+# from pozyx_helpers.PozyxPlot import QtSinglePlotWindow
+from pozyx_helpers.QtSinglePlotWindow import QtSinglePlotWindow
 
 
 if __name__ == "__main__":

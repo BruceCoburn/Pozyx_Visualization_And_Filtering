@@ -100,7 +100,8 @@ class Pozyx1dCapture(object):
             print(f"----------------------------")
             print(
                 f"Timestep (ms): {self.absolute_timestamp:.4f} \t Distance (mm): {device_range.distance} \t"
-                + f"Timestamp (ms): {current_timestamp} \t Timestamp difference (ms): {self.timestamp_difference:.4f}"
+                + f"Timestamp (ms): {current_timestamp} \t Timestamp difference (ms): {self.timestamp_difference:.4f}\t"
+                + f"Pozyx Timestamp: {device_range.timestamp}"
             )
             self.write_timestep_distance_to_csv(self.datafile, device_range.distance)
         else:
