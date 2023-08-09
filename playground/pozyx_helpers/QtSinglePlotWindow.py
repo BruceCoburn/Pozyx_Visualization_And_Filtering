@@ -109,7 +109,14 @@ class QtSinglePlotWindow(QtWidgets.QWidget):
         Clears the plots.
         """
         self.ax.clear()
-        self.ax.set_title("1-D Pozyx Data")
+
+        # Add large and bold title
+        self.ax.set_title("1-D Pozyx Data", fontsize=16, fontweight="bold")
+
+        # Set the x and y labels
+        self.ax.set_xlabel("Timesteps (ms)")
+        self.ax.set_ylabel("Distance (mm)")
+
         self.canvas.draw()
 
     def loadCsvFile(self, button_type):
@@ -129,8 +136,6 @@ class QtSinglePlotWindow(QtWidgets.QWidget):
         elif filename and button_type == 2:
             self.plotGroundTruthCsvFile(filename)
 
-        print(f'adding legend')
-
         # Add a legend
         self.ax.legend(loc="upper left", bbox_to_anchor=(1, 1), fontsize='large')
 
@@ -142,12 +147,39 @@ class QtSinglePlotWindow(QtWidgets.QWidget):
         Plots the data from a .csv file.
         """
         df = pd.read_csv(filename)
-        # self.ax.clear()
-        self.ax.plot(df[df.columns[0]], df[df.columns[1]], color='blue', label='Pozyx Data', linewidth=1)
-        # self.ax.set_title("Pozyx Data")
 
-        # Add a legend
-        # self.ax.legend("Pozyx Data")
+        # Calculate the mean of the data
+        data_mean = df[df.columns[1]].mean()
+
+        # Calculate the data which deviates the most from the mean
+        data_max_deviation = df[df.columns[1]].max() - data_mean
+        data_min_deviation = data_mean - df[df.columns[1]].min()
+        data_deviation_diff = max(data_max_deviation, data_min_deviation)
+
+        print(f"Data mean: {data_mean:.2f}")
+        print(f"Data max deviation: {data_max_deviation:.2f}")
+        print(f"Data min deviation: {data_min_deviation:.2f}")
+        print(f"Data deviation diff: {data_deviation_diff:.2f}")
+
+        # Plot the mean and the max deviation lines
+        self.ax.axhline(y=data_mean, color='green', label='Mean', linewidth=1)
+
+        # Determine whether the max or min deviation is greater (used to plot line above or below the mean)
+        if data_max_deviation < data_min_deviation:
+            diff_line = data_mean - data_deviation_diff
+        else:
+            diff_line = data_mean + data_deviation_diff
+
+        self.ax.axhline(y=diff_line, color='red', label='Max Deviation', linewidth=1)
+
+        # Annotate the mean and max deviation lines
+        self.ax.annotate(f'Mean: {data_mean:.2f}', xy=(1, data_mean), xycoords=('axes fraction', 'data'), textcoords='offset points', xytext=(-10,-10), ha='right')
+        self.ax.annotate(f'Deviation Value: {diff_line:.2f} || Difference: {data_deviation_diff:.2f}', xy=(1, diff_line), xycoords=('axes fraction', 'data'), textcoords='offset points', xytext=(-10,10), ha='right')
+
+        # Plot the data
+        self.ax.plot(df[df.columns[0]], df[df.columns[1]], color='blue', label='Pozyx Data', linewidth=1)
+
+        # Draw the plot
         self.canvas.draw()
 
     def plotGroundTruthCsvFile(self, filename):
@@ -155,11 +187,18 @@ class QtSinglePlotWindow(QtWidgets.QWidget):
         Plots the data from a .csv file.
         """
         df = pd.read_csv(filename)
-        # self.ax.clear()
-        self.ax.plot(df[df.columns[0]], df[df.columns[1]], color='orange', label='Ground Truth', linewidth=3)
-        print(f'ground truth')
-        # self.ax.set_title("Ground Truth")
 
-        # Add a legend
-        # self.ax.legend("Ground Truth", loc='upper left', bbox_to_anchor=(1, 1), fontsize=8)
+        # Calculate the mean of GT
+        gt_mean = df[df.columns[1]].mean()
+
+        # Plot the mean line
+        self.ax.axhline(y=gt_mean, color='purple', label='GT Mean', linewidth=1)
+
+        # Annotate the mean line
+        self.ax.annotate(f'GT Mean: {gt_mean:.2f}', xy=(1, gt_mean), xycoords=('axes fraction', 'data'), textcoords='offset points', xytext=(-10,-10), ha='right')
+
+        # Plot the data
+        self.ax.plot(df[df.columns[0]], df[df.columns[1]], color='orange', label='Ground Truth', linewidth=3)
+
+        # Draw the plot
         self.canvas.draw()

@@ -103,7 +103,7 @@ class Pozyx1dCapture(object):
                 + f"Timestamp (ms): {current_timestamp} \t Timestamp difference (ms): {self.timestamp_difference:.4f}\t"
                 + f"Pozyx Timestamp: {device_range.timestamp}"
             )
-            self.write_timestep_distance_to_csv(self.datafile, device_range.distance)
+            self.write_timestep_distance_to_csv(self.datafile, device_range.distance, device_range.timestamp)
         else:
             error_code = SingleRegister()
             status = self.pozyx.getErrorCode(error_code)
@@ -133,7 +133,7 @@ class Pozyx1dCapture(object):
         """
         return (timestamp2 - timestamp1).total_seconds() * 1000
 
-    def write_timestep_distance_to_csv(self, filename, distance):
+    def write_timestep_distance_to_csv(self, filename, distance, timestamp):
         """
         Appends data to a .csv file.
         """
@@ -151,7 +151,7 @@ class Pozyx1dCapture(object):
 
         # Write data to csv file
         with open(filename, "a", newline="") as csvfile:
-            fieldnames = ["Timestep (ms)", "Distance (mm)"]
+            fieldnames = ["Timestep (ms)", "Distance (mm)", "Pozyx Timestamp (ms)"]
             writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
 
             # Write the header if the file is newly created
@@ -159,7 +159,7 @@ class Pozyx1dCapture(object):
                 writer.writeheader()
 
             writer.writerow(
-                {"Timestep (ms)": self.absolute_timestamp, "Distance (mm)": distance}
+                {"Timestep (ms)": self.absolute_timestamp, "Distance (mm)": distance, "Pozyx Timestamp (ms)": timestamp}
             )
             self.num_data_samples += 1
 

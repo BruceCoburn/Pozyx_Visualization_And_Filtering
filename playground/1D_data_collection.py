@@ -41,7 +41,8 @@ if __name__ == "__main__":
     ###########################################
     # HARDCODE the remote_id of the Pozyx tag
     ###########################################
-    remote_id = 0x683A
+    # remote_id = 0x683A
+    remote_id = 0x6832
     remote = False  # whether to use the given remote device for ranging
     if not remote:
         remote_id = None
@@ -73,6 +74,7 @@ if __name__ == "__main__":
     # Run the script for 10 seconds
     duration_s = 10
     start_time = time.time()
+    print(f"Collecting data for {duration_s} seconds...")
     while time.time() - start_time < duration_s:
         pozyx1d.loop()
 

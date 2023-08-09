@@ -21,7 +21,7 @@ if __name__ == "__main__":
     # distance = float(input("Enter the constant distance (mm): "))
 
     frequency = 62 # Hz
-    distance = 1338 # mm
+    distance = 1867 # mm
 
     distance_str = str(distance)
 
